@@ -12,43 +12,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CitiController {
-    private Stations<StationInfo> stationsInfo;
-    private Stations<StatusInfo> statusInfo;
+    private final Stations<StationInfo> stationsInfo;
+    private final Stations<StatusInfo> statusInfo;
     HashMap<String, StationStatus> stationStatusMap = new HashMap<>();
     List<StationStatus> stationStatusList;
     final static double RADIUS = 3958.8;
 
-    public CitiController(CitiService citiService) {
-        Disposable disposableStation = citiService.getStations()
-                .doOnSubscribe(d -> System.out.println("Attempting to subscribe to getStations"))
-                .doOnSuccess(response -> System.out.println("Successfully fetched stations: " + response))
-                .doOnError(error -> System.err.println("Error before subscription: " + error.getMessage()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(SwingSchedulers.edt())
-                .subscribe(
-                        this::handleResponseStation,
-                        Throwable::printStackTrace);
-
-
-        Disposable disposableStatus = citiService.getStatus()
-                .subscribeOn(Schedulers.io())
-                .observeOn(SwingSchedulers.edt())
-                .subscribe(
-                        this::handleResponseStatus,
-                        Throwable::printStackTrace);
-
+    public CitiController(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
+        this.stationsInfo = stationsInfo;
+        this.statusInfo = statusInfo;
         mergeStationStatus();
         stationStatusList = stationStatusMap.values().stream().toList();
-    }
-
-    private void handleResponseStation(Stations<StationInfo> response) {
-        System.out.println("calling handle response station");
-        stationsInfo = response;
-    }
-
-    private void handleResponseStatus(Stations<StatusInfo> response) {
-        System.out.println("calling handle response status");
-        statusInfo = response;
     }
 
     private void mergeStationStatus() {
@@ -85,7 +59,7 @@ public class CitiController {
 
     private String findClosestStationCoords(double lat, double lon) {
         double closest = Double.MAX_VALUE;
-        String closestStationId = null;
+        String closestStationId = stationStatusList.get(0).station_id;
 
         for (StationStatus stationStatus : stationStatusList) {
             double distance = haversine(stationStatus.lat, stationStatus.lon, lat, lon);
@@ -107,7 +81,7 @@ public class CitiController {
         lat2 = Math.toRadians(lat2);
 
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.sin(dLon / 2) * Math.sin(dLon / 2) +
+                Math.sin(dLon / 2) * Math.sin(dLon / 2) *
                 Math.cos(lat1) * Math.cos(lat2);
 
         double c = 2 * Math.asin(Math.sqrt(a));
