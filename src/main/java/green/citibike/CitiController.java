@@ -16,7 +16,7 @@ public class CitiController {
     private final Stations<StatusInfo> statusInfo;
     HashMap<String, StationStatus> stationStatusMap = new HashMap<>();
     List<StationStatus> stationStatusList;
-    final static double RADIUS = 3958.8;
+    final double RADIUS = 3958.8;
 
     public CitiController(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
         this.stationsInfo = stationsInfo;
@@ -80,9 +80,9 @@ public class CitiController {
         lat1 = Math.toRadians(lat1);
         lat2 = Math.toRadians(lat2);
 
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.sin(dLon / 2) * Math.sin(dLon / 2) *
-                Math.cos(lat1) * Math.cos(lat2);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                * Math.cos(lat1) * Math.cos(lat2);
 
         double c = 2 * Math.asin(Math.sqrt(a));
 
@@ -100,11 +100,11 @@ public class CitiController {
     private StationStatus findClosestStationId(double lat, double lon, boolean hasBike) {
         String stationId = findClosestStationCoords(lat, lon);
 
-        if(stationStatusMap.get(stationId).num_bikes_available == 0) {
+        if (stationStatusMap.get(stationId).num_bikes_available == 0) {
             String closestBefore = findClosestStationDirected(stationId, hasBike, true);
             String closestAfter = findClosestStationDirected(stationId, hasBike, false);
-            return haversine(closestBefore, stationId) > haversine(closestAfter, stationId) ?
-                    stationStatusMap.get(closestBefore) :  stationStatusMap.get(closestAfter);
+            return haversine(closestBefore, stationId) > haversine(closestAfter, stationId)
+                    ? stationStatusMap.get(closestBefore) :  stationStatusMap.get(closestAfter);
         }
 
         return stationStatusMap.get(stationId);
@@ -113,7 +113,7 @@ public class CitiController {
     private String findClosestStationDirected(String stationId, boolean hasBike, boolean forwards) {
         int currIx = stationStatusList.indexOf(stationStatusMap.get(stationId));
 
-        while(!checkAvailability(stationStatusList.get(currIx), hasBike)) {
+        while (!checkAvailability(stationStatusList.get(currIx), hasBike)) {
             currIx = getNextIx(currIx, forwards);
         }
 
