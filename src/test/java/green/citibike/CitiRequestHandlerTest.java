@@ -31,7 +31,6 @@ public class CitiRequestHandlerTest {
 
         Response response = handler.handleRequest(event, null);
 
-        //I know this will not be null, just want to get to the point where disposable runs
-        assertNotNull(response);
+        assertNotNull(response.getEnd().station_id);
     }
 }

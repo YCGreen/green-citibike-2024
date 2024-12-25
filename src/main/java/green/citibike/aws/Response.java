@@ -26,4 +26,20 @@ public class Response {
         end = to.getStationInfo();
     }
 
+    public Coordinate getFrom() {
+        return from;
+    }
+
+    public Coordinate getTo() {
+        return to;
+    }
+
+    public StationInfo getStart() {
+        return start;
+    }
+
+    public StationInfo getEnd() {
+        return end;
+    }
+
 }
