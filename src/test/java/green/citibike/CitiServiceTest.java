@@ -4,8 +4,6 @@ import green.citibike.json.StationInfo;
 import green.citibike.json.Stations;
 import green.citibike.json.StatusInfo;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CitiServiceTest {
@@ -29,7 +27,6 @@ public class CitiServiceTest {
 
         Stations<StatusInfo> stations = service.getStatus().blockingGet();
 
-        assertNotNull(stations);
         assertNotNull(stations.data.stations.get(0).station_id);
     }
 }

@@ -1,8 +1,5 @@
 package green.citibike;
 
-import hu.akarnokd.rxjava3.swing.SwingSchedulers;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import green.citibike.json.StationInfo;
 import green.citibike.json.StationStatus;
 import green.citibike.json.Stations;
