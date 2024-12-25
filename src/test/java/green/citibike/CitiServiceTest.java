@@ -17,7 +17,6 @@ public class CitiServiceTest {
         Stations<StationInfo> stations = service.getStations().blockingGet();
 
         //then
-       // assertNotNull(stations);
         assertNotNull(stations.data.stations.get(0).station_id);
     }
 
