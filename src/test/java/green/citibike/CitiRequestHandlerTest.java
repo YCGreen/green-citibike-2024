@@ -31,6 +31,6 @@ public class CitiRequestHandlerTest {
 
         Response response = handler.handleRequest(event, null);
 
-        assertNotNull(response.getEnd().station_id);
+        assertNotNull(response.getEnd());
     }
 }

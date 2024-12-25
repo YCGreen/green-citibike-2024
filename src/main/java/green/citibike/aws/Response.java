@@ -4,12 +4,12 @@ import green.citibike.json.StationInfo;
 import green.citibike.json.StationStatus;
 
 public class Response {
-    private Coordinate from;
-    private StationInfo start;
-    private Coordinate to;
-    private StationInfo end;
+    private From from;
+    private Start start;
+    private To to;
+    private End end;
 
-    public Response(Coordinate from, StationInfo start, Coordinate to, StationInfo end) {
+    public Response(From from, Start start, To to, End end) {
         this.from = from;
         this.start = start;
         this.to = to;
@@ -17,29 +17,75 @@ public class Response {
     }
 
     public Response(StationStatus from, StationStatus to) {
-        Coordinate setFrom = new Coordinate(from.getLat(), from.getLon());
-        Coordinate setTo = new Coordinate(to.getLat(), to.getLon());
-
-        this.from = setFrom;
-        this.to = setTo;
-        start = from.getStationInfo();
-        end = to.getStationInfo();
+        this.from = new From(from.getLat(), from.getLon());
+        this.start = new Start(from.getLat(), from.getLon(), from.getName(), from.getStationId());
+        this.to = new To(to.getLat(), to.getLon());
+        this.end = new End(to.getLat(), to.getLon(), to.getName(), to.getStationId());
     }
 
-    public Coordinate getFrom() {
+    public From getFrom() {
         return from;
     }
 
-    public Coordinate getTo() {
+    public To getTo() {
         return to;
     }
 
-    public StationInfo getStart() {
+    public Start getStart() {
         return start;
     }
 
-    public StationInfo getEnd() {
+    public End getEnd() {
         return end;
+    }
+
+    public class From {
+        private double lat;
+        private double lon;
+
+        public From(double lat, double lon) {
+            this.lat = lat;
+            this.lon = lon;
+        }
+    }
+
+    public class Start {
+        private double lat;
+        private double lon;
+        private String name;
+        private String station_id;
+
+        public Start(double lat, double lon, String name, String station_id) {
+            this.lat = lat;
+            this.lon = lon;
+            this.name = name;
+            this.station_id = station_id;
+        }
+
+    }
+
+    public class To {
+        private double lat;
+        private double lon;
+
+        public To(double lat, double lon) {
+            this.lat = lat;
+            this.lon = lon;
+        }
+    }
+
+    public class End {
+        private double lat;
+        private double lon;
+        private String name;
+        private String station_id;
+
+        public End(double lat, double lon, String name, String station_id) {
+            this.lat = lat;
+            this.lon = lon;
+            this.name = name;
+            this.station_id = station_id;
+        }
     }
 
 }
