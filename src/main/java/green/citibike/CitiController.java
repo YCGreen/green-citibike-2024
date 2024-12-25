@@ -32,16 +32,14 @@ public class CitiController {
 
     private void insertStationInfo(List<StationInfo> stationInfoList) {
         for (StationInfo stationInfo : stationInfoList) {
-            stationStatusMap.put(stationInfo.station_id, new StationStatus(stationInfo.lon,
-                    stationInfo.lat, stationInfo.name, stationInfo.station_id));
+            stationStatusMap.put(stationInfo.station_id, new StationStatus(stationInfo));
         }
     }
 
     private void insertStatusInfo(List<StatusInfo> statusInfoList) {
         for (StatusInfo statusInfo : statusInfoList) {
             StationStatus staSta = stationStatusMap.get(statusInfo.station_id);
-            staSta.addStatus(statusInfo.isRenting,
-                    statusInfo.num_bikes_available, statusInfo.num_docks_available);
+            staSta.addStatus(statusInfo);
             stationStatusMap.replace(statusInfo.station_id, staSta);
         }
     }
@@ -56,13 +54,13 @@ public class CitiController {
 
     private String findClosestStationCoords(double lat, double lon) {
         double closest = Double.MAX_VALUE;
-        String closestStationId = stationStatusList.get(0).station_id;
+        String closestStationId = stationStatusList.get(0).getStationId();
 
         for (StationStatus stationStatus : stationStatusList) {
-            double distance = haversine(stationStatus.lat, stationStatus.lon, lat, lon);
+            double distance = haversine(stationStatus.getLat(), stationStatus.getLon(), lat, lon);
             if (distance < closest) {
                 closest = distance;
-                closestStationId = stationStatus.station_id;
+                closestStationId = stationStatus.getStationId();
             }
         }
 
@@ -87,17 +85,17 @@ public class CitiController {
     }
 
     private double haversine(String station1, String station2) {
-        double lat1 = stationStatusMap.get(station1).lat;
-        double lat2 = stationStatusMap.get(station2).lat;
-        double lon1 = stationStatusMap.get(station1).lon;
-        double lon2 = stationStatusMap.get(station2).lon;
+        double lat1 = stationStatusMap.get(station1).getLat();
+        double lat2 = stationStatusMap.get(station2).getLat();
+        double lon1 = stationStatusMap.get(station1).getLon();
+        double lon2 = stationStatusMap.get(station2).getLon();
         return haversine(lat1, lon1, lat2, lon2);
     }
 
     private StationStatus findClosestStationId(double lat, double lon, boolean hasBike) {
         String stationId = findClosestStationCoords(lat, lon);
 
-        if (stationStatusMap.get(stationId).num_bikes_available == 0) {
+        if (stationStatusMap.get(stationId).getNumBikesAvailable() == 0) {
             String closestBefore = findClosestStationDirected(stationId, hasBike, true);
             String closestAfter = findClosestStationDirected(stationId, hasBike, false);
             return haversine(closestBefore, stationId) > haversine(closestAfter, stationId)
@@ -114,7 +112,7 @@ public class CitiController {
             currIx = getNextIx(currIx, forwards);
         }
 
-        return stationStatusList.get(currIx).station_id;
+        return stationStatusList.get(currIx).getStationId();
     }
 
     private int getNextIx(int currIx, boolean forwards) {
@@ -123,7 +121,7 @@ public class CitiController {
     }
 
     private boolean checkAvailability(StationStatus staSta, boolean hasBike) {
-        return hasBike ? staSta.num_docks_available > 0 : staSta.num_bikes_available > 0;
+        return hasBike ? staSta.getNumDocksAvailable() > 0 : staSta.getNumBikesAvailable() > 0;
     }
 
     public StationStatus findClosestStationWithBike(double lat, double lon) {

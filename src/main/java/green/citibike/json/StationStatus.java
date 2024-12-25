@@ -1,36 +1,67 @@
 package green.citibike.json;
 
 public class StationStatus {
-    public double lon;
-    public double lat;
-    public String name;
-    public String station_id;
-    public int isRenting;
-    public int num_bikes_available;
-    public int num_docks_available;
+    private StationInfo stationInfo;
+    private StatusInfo statusInfo;
 
-    public StationStatus(double lon, double lat, String name, String station_id) {
-        this.lon = lon;
-        this.lat = lat;
-        this.name = name;
-        this.station_id = station_id;
+    public StationStatus(StationInfo stationInfo, StatusInfo statusInfo) {
+        this.stationInfo = stationInfo;
+        this.statusInfo = statusInfo;
     }
 
-    public void addStatus(int isRenting, int num_bikes_available, int num_docks_available) {
-        this.isRenting = isRenting;
-        this.num_bikes_available = num_bikes_available;
-        this.num_docks_available = num_docks_available;
+    public StationStatus(StationInfo stationInfo) {
+        this.stationInfo = stationInfo;
+    }
+
+    public void addStatus(StatusInfo statusInfo) {
+        this.statusInfo = statusInfo;
+    }
+
+    public StationInfo getStationInfo() {
+        return stationInfo;
+    }
+
+    public StatusInfo getStatusInfo() {
+        return statusInfo;
+    }
+
+    public double getLon() {
+        return stationInfo.lon;
+    }
+
+    public double getLat() {
+        return stationInfo.lat;
+    }
+
+    public String getName() {
+        return stationInfo.name;
+    }
+
+    public String getStationId() {
+        return stationInfo.station_id;
+    }
+
+    public int isRenting() {
+        return statusInfo.isRenting;
+    }
+
+    public int getNumBikesAvailable() {
+        return statusInfo.num_bikes_available;
+    }
+
+    public int getNumDocksAvailable() {
+        return statusInfo.num_docks_available;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Longitude: " + lon + "\n");
-        sb.append("Latitude: " + lat + "\n");
-        sb.append("Name: " + name + "\n");
-        sb.append("StationID: " + station_id + "\n");
-        sb.append("IsRenting: " + isRenting + "\n");
-        sb.append("NumBikes: " + num_bikes_available + "\n");
-        sb.append("NumDocks: " + num_docks_available + "\n");
+        sb.append("Longitude: " + getLon() + "\n");
+        sb.append("Latitude: " + getLat() + "\n");
+        sb.append("Name: " + getName() + "\n");
+        sb.append("StationID: " + getStationId() + "\n");
+        sb.append("IsRenting: " + isRenting() + "\n");
+        sb.append("NumBikes: " + getNumBikesAvailable() + "\n");
+        sb.append("NumDocks: " + getNumDocksAvailable() + "\n");
         return sb.toString();
     }
 }
