@@ -53,13 +53,16 @@ public class Response {
         private double lat;
         private double lon;
         private String name;
+        //CHECKSTYLE:OFF
         private String station_id;
+
 
         public Start(double lat, double lon, String name, String station_id) {
             this.lat = lat;
             this.lon = lon;
             this.name = name;
             this.station_id = station_id;
+            //CHECKSTYLE:ON
         }
 
     }
