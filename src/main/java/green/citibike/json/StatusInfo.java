@@ -1,10 +1,9 @@
 package green.citibike.json;
 
-import com.google.gson.annotations.SerializedName;
-
 public class StatusInfo {
-    @SerializedName("station_id")
+    //CHECKSTYLE:OFF
     public String station_id;
+    //CHECKSTYLE:ON
     public int isRenting;
     public int num_bikes_available;
     public int num_docks_available;

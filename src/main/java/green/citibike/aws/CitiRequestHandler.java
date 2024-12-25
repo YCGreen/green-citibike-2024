@@ -22,32 +22,10 @@ public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequest
     private Stations<StatusInfo> statusInfo;
 
     public CitiRequestHandler() {
-        createDisposables();
-        citiController = new CitiController(stationsInfo, statusInfo);
-    }
-
-    private void createDisposables() {
         CitiService citiService = new CitiServiceFactory().getService();
-        Disposable disposableStations = citiService.getStations()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.from(SwingUtilities::invokeLater))
-                .subscribe(
-                        this::handleResponseStations,
-                        Throwable::printStackTrace);
-        Disposable disposableStatus = citiService.getStatus()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.from(SwingUtilities::invokeLater))
-                .subscribe(
-                        this::handleResponseStatus,
-                        Throwable::printStackTrace);
-    }
-
-    private void handleResponseStations(Stations<StationInfo> response) {
-        stationsInfo = response;
-    }
-
-    private void handleResponseStatus(Stations<StatusInfo> response) {
-        statusInfo = response;
+        stationsInfo = citiService.getStations().blockingGet();
+        statusInfo = citiService.getStatus().blockingGet();
+        citiController = new CitiController(stationsInfo, statusInfo);
     }
 
     @Override
