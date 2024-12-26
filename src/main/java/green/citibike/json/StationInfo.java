@@ -12,6 +12,8 @@ public class StationInfo {
         this.lon = lon;
         this.lat = lat;
         this.name = name;
+        //CHECKSTYLE:OFF
         this.station_id = station_id;
+        //CHECKSTYLE:ON
     }
 }

@@ -38,7 +38,9 @@ public class StationStatus {
     }
 
     public String getStationId() {
+        //CHECKSTYLE:OFF
         return stationInfo.station_id;
+        //CHECKSTYLE:ON
     }
 
     public int isRenting() {

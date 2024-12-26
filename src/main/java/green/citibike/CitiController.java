@@ -38,9 +38,9 @@ public class CitiController {
 
     private void insertStatusInfo(List<StatusInfo> statusInfoList) {
         for (StatusInfo statusInfo : statusInfoList) {
-            StationStatus staSta = stationStatusMap.get(statusInfo.station_id);
-            staSta.addStatus(statusInfo);
-            stationStatusMap.replace(statusInfo.station_id, staSta);
+            StationStatus stationStatus = stationStatusMap.get(statusInfo.station_id);
+            stationStatus.addStatus(statusInfo);
+            stationStatusMap.replace(statusInfo.station_id, stationStatus);
         }
     }
 
@@ -120,8 +120,8 @@ public class CitiController {
         return (currIx + step + stationStatusList.size()) % stationStatusList.size();
     }
 
-    private boolean checkAvailability(StationStatus staSta, boolean hasBike) {
-        return hasBike ? staSta.getNumDocksAvailable() > 0 : staSta.getNumBikesAvailable() > 0;
+    private boolean checkAvailability(StationStatus stationStatus, boolean hasBike) {
+        return hasBike ? stationStatus.getNumDocksAvailable() > 0 : stationStatus.getNumBikesAvailable() > 0;
     }
 
     public StationStatus findClosestStationWithBike(double lat, double lon) {

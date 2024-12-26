@@ -11,10 +11,6 @@ import green.citibike.json.StationInfo;
 import green.citibike.json.StationStatus;
 import green.citibike.json.Stations;
 import green.citibike.json.StatusInfo;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import javax.swing.*;
 
 public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
     private CitiController citiController;
