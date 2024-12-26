@@ -6,9 +6,10 @@ public class StationInfo {
     public String name;
     //CHECKSTYLE:OFF
     public String station_id;
-    //CHECKSTYLE:ON
+
 
     public StationInfo(double lon, double lat, String name, String station_id) {
+        //CHECKSTYLE:ON
         this.lon = lon;
         this.lat = lat;
         this.name = name;
