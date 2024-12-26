@@ -95,7 +95,9 @@ public class CitiController {
     private StationStatus findClosestStationId(double lat, double lon, boolean hasBike) {
         String stationId = findClosestStationCoords(lat, lon);
 
-        if (stationStatusMap.get(stationId).getNumBikesAvailable() == 0) {
+        int available = hasBike ? stationStatusMap.get(stationId).getNumDocksAvailable()
+                : stationStatusMap.get(stationId).getNumBikesAvailable();
+        if (available == 0) {
             String closestBefore = findClosestStationDirected(stationId, hasBike, true);
             String closestAfter = findClosestStationDirected(stationId, hasBike, false);
             return haversine(closestBefore, stationId) > haversine(closestAfter, stationId)
