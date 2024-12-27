@@ -100,8 +100,10 @@ public class CitiController {
         String stationId = findClosestStationCoords(lat, lon);
 
         StationStatus stationStatus = stationStatusMap.get(stationId);
+
         int available = hasBike ? stationStatus.getNumDocksAvailable()
                 : stationStatus.getNumBikesAvailable();
+
         if (available == 0) {
             String closestBefore = findClosestStationDirected(stationId, hasBike, true);
             String closestAfter = findClosestStationDirected(stationId, hasBike, false);
@@ -113,7 +115,7 @@ public class CitiController {
     }
 
     private String findClosestStationDirected(String stationId, boolean hasBike, boolean forwards) {
-        int currIx = stationStatusList.indexOf(stationStatusMap.get(stationId));
+        int currIx = getNextIx(stationStatusList.indexOf(stationStatusMap.get(stationId)), forwards);
 
         while (!checkAvailability(stationStatusList.get(currIx), hasBike)) {
             currIx = getNextIx(currIx, forwards);

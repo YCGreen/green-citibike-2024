@@ -38,7 +38,7 @@ public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequest
         StationStatus directFrom = citiController.findClosestStationWithBike(from.getLat(), from.getLon());
         StationStatus directTo = citiController.findClosestStationWithDock(to.getLat(), to.getLon());
 
-        return new Response(directFrom, directTo);
+        return new Response(from, directFrom.getStationInfo(), to, directTo.getStationInfo());
     }
 
 

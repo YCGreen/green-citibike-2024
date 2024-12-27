@@ -16,13 +16,6 @@ public class Response {
         this.end = end;
     }
 
-    public Response(StationStatus from, StationStatus to) {
-        this.from = new Coordinate(from.getLat(), from.getLon());
-        this.start = from.getStationInfo();
-        this.to = new Coordinate(to.getLat(), to.getLon());
-        this.end = to.getStationInfo();
-    }
-
     public Coordinate getFrom() {
         return from;
     }
