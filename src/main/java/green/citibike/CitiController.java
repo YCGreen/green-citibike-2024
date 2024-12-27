@@ -9,15 +9,19 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CitiController {
-    private final Stations<StationInfo> stationsInfo;
-    private final Stations<StatusInfo> statusInfo;
+    private Stations<StationInfo> stationsInfo;
+    private Stations<StatusInfo> statusInfo;
     HashMap<String, StationStatus> stationStatusMap = new HashMap<>();
     List<StationStatus> stationStatusList;
     final double RADIUS = 3958.8;
 
     public CitiController(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
-        this.stationsInfo = stationsInfo;
-        this.statusInfo = statusInfo;
+        replaceStationsInfo(stationsInfo, statusInfo);
+    }
+
+    public void replaceStationsInfo(Stations<StationInfo> newStationsInfo, Stations<StatusInfo> newStatusInfo) {
+        stationsInfo = newStationsInfo;
+        statusInfo = newStatusInfo;
         mergeStationStatus();
         stationStatusList = stationStatusMap.values().stream().toList();
     }
@@ -95,8 +99,9 @@ public class CitiController {
     private StationStatus findClosestStationId(double lat, double lon, boolean hasBike) {
         String stationId = findClosestStationCoords(lat, lon);
 
-        int available = hasBike ? stationStatusMap.get(stationId).getNumDocksAvailable()
-                : stationStatusMap.get(stationId).getNumBikesAvailable();
+        StationStatus stationStatus = stationStatusMap.get(stationId);
+        int available = hasBike ? stationStatus.getNumDocksAvailable()
+                : stationStatus.getNumBikesAvailable();
         if (available == 0) {
             String closestBefore = findClosestStationDirected(stationId, hasBike, true);
             String closestAfter = findClosestStationDirected(stationId, hasBike, false);

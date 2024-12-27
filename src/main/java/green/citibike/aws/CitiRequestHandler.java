@@ -13,19 +13,18 @@ import green.citibike.json.Stations;
 import green.citibike.json.StatusInfo;
 
 public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
+    private CitiService citiService;
     private CitiController citiController;
-    private Stations<StationInfo> stationsInfo;
-    private Stations<StatusInfo> statusInfo;
 
     public CitiRequestHandler() {
         CitiService citiService = new CitiServiceFactory().getService();
-        stationsInfo = citiService.getStations().blockingGet();
-        statusInfo = citiService.getStatus().blockingGet();
-        citiController = new CitiController(stationsInfo, statusInfo);
     }
 
     @Override
     public Response handleRequest(APIGatewayProxyRequestEvent event, Context context) {
+        Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
+        Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
+        citiController.replaceStationsInfo(stationsInfo, statusInfo);
         String body = event.getBody();
         Gson gson = new Gson();
         Request request = gson.fromJson(body, Request.class);
