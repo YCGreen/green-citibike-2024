@@ -1,10 +1,9 @@
 package green.citibike;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import green.citibike.aws.CitiRequestHandler;
-import green.citibike.aws.Request;
-import green.citibike.aws.Response;
+import green.citibike.aws.*;
 import green.citibike.json.StationInfo;
+import io.reactivex.rxjava3.core.Single;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.CenterMapListener;
@@ -129,13 +128,15 @@ public class CitiFrame extends JFrame {
     }
 
     private Response mapPoints(List<GeoPosition> track) {
+        /*
         Request request = new Request(track.get(0), track.get(1));
         String json = request.toString();
         APIGatewayProxyRequestEvent event = new APIGatewayProxyRequestEvent();
         event.setBody(json);
 
         Response response = requestHandler.handleRequest(event, null);
-
+*/LambdaService service = new LambdaServiceFactory().getService();
+        Response response = service.getStations(new Request(track.get(0), track.get(1))).blockingGet();
         StationInfo stationInfo = response.getStart();
         GeoPosition stationFrom = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
         stationInfo = response.getEnd();
@@ -145,6 +146,8 @@ public class CitiFrame extends JFrame {
         track.add(2, stationTo);
 
         return response;
+
+
     }
 
 
