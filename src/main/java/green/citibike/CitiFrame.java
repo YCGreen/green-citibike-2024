@@ -61,7 +61,6 @@ public class CitiFrame extends JFrame {
         mapViewer.addKeyListener(new PanKeyListener(mapViewer));
 
         WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
-        HashSet<Waypoint> waypoints = new HashSet<>();
 
         List<GeoPosition> track = new ArrayList<>();
 
@@ -87,11 +86,6 @@ public class CitiFrame extends JFrame {
                 mapViewer.repaint();
             }
         });
-
-       /* mapViewer.zoomToBestFit(
-                Set.of(from, startStation, endStation, to),
-                1.0
-        );*/
 
         JButton next = new JButton("Map");
         next.addActionListener(new ActionListener() {
