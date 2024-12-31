@@ -1,5 +1,8 @@
 package green.citibike;
 
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import green.citibike.aws.CitiRequestHandler;
+import green.citibike.aws.Request;
 import green.citibike.aws.Response;
 import green.citibike.json.StationInfo;
 import green.citibike.json.Stations;
@@ -25,14 +28,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class CitiFrame extends JFrame {
 
-    CitiService service = new CitiServiceFactory().getService();
-    Stations<StationInfo> stations = service.getStations().blockingGet();
-    Stations<StatusInfo> statuses = service.getStatus().blockingGet();
-    CitiController controller = new CitiController(stations, statuses);=
+    CitiRequestHandler requestHandler = new CitiRequestHandler();
 
     public CitiFrame() {
         setSize(800, 600);
@@ -63,18 +66,21 @@ public class CitiFrame extends JFrame {
         mapViewer.addKeyListener(new PanKeyListener(mapViewer));
 
         WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
-        Set<Waypoint> waypoints = Set.of(
-                new DefaultWaypoint(new GeoPosition(40.77228687788679, -73.9842939376831))
-        );
+        HashSet<Waypoint> waypoints = new HashSet<>();
+        waypoints.add(new DefaultWaypoint(new GeoPosition(40.77228687788679, -73.9842939376831)));
         waypointPainter.setWaypoints(waypoints);
 
-       /* List<Painter<JXMapViewer>> painters = List.of(
+        List<GeoPosition> track = new ArrayList<>();
+
+        RoutePainter routePainter = new RoutePainter(track);
+
+        List<org.jxmapviewer.painter.Painter<org.jxmapviewer.JXMapViewer>> painters = List.of(
                 routePainter,
                 waypointPainter
-        );*/
+        );
 
-      //  CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
-       // mapViewer.setOverlayPainter(painter);
+        CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
+        mapViewer.setOverlayPainter(painter);
 
         GeoPosition currPosition = new GeoPosition(0, 0);
 
@@ -100,7 +106,8 @@ public class CitiFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(waypoints.size() == 2) {
-                    mapPoints(waypoints);
+                    Response response = mapPoints(waypoints);
+                    System.out.println(response.toString());
                 }
 
             }
@@ -109,53 +116,26 @@ public class CitiFrame extends JFrame {
 
     }
 
-    private void addWaypoint(Set<Waypoint> set, Waypoint waypoint) {
-        if(set.size() == 2) {
-            set.clear();
+    private void addWaypoint(HashSet<Waypoint> waypoints, Waypoint waypoint) {
+        if(waypoints.size() == 2) {
+            waypoints.clear();
         }
 
-        set.add(waypoint);
+        waypoints.add(waypoint);
     }
 
-    private Response[] mapPoints(Set<Waypoint> set) {
-        createDisposables();
-        controller.replaceStationsInfo(stations, statuses);
+    private Response mapPoints(HashSet<Waypoint> waypoints) {
+        Iterator<Waypoint> iterator = waypoints.iterator();
+        Waypoint waypoint = iterator.next();
+        GeoPosition geoPos1 = new GeoPosition(waypoint.getPosition());
+        Request request = new Request(iterator.next(), iterator.next());
+        String json = request.toString();
+        APIGatewayProxyRequestEvent event = new APIGatewayProxyRequestEvent();
+        event.setBody(json);
 
-        Response[] responses = new Response[set.size()];
-
-        for(Waypoint waypoint : set) {
-            responses[0] = controller.
-        }
-
-
-
-
-
+        return requestHandler.handleRequest(event, null);
     }
 
-    private void createDisposables() {
-        Disposable disposable1 = service.getStations()
-                .subscribeOn(Schedulers.io())
-                .observeOn(SwingSchedulers.edt())
-                .subscribe(
-                        this::handleStationsResponse,
-                        Throwable::printStackTrace);
-
-        Disposable disposable2 = service.getStatus()
-                .subscribeOn(Schedulers.io())
-                .observeOn(SwingSchedulers.edt())
-                .subscribe(
-                        this::handleStatusResponse,
-                        Throwable::printStackTrace);
-    }
-
-    private void handleStationsResponse(Stations<StationInfo> stationInfo) {
-        stations = stationInfo;
-    }
-
-    private void handleStatusResponse(Stations<StatusInfo> statusInfo) {
-        statuses = statusInfo;
-    }
 
     public static void main(String[] args) {
         CitiFrame frame = new CitiFrame();
