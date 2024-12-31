@@ -91,7 +91,7 @@ public class CitiFrame extends JFrame {
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(track.size() == 2) {
+                if (track.size() == 2) {
                     Response response = mapPoints(track);
                     textArea.setText(response.toString());
                     setWaypointPainter(track, waypointPainter);
@@ -108,7 +108,7 @@ public class CitiFrame extends JFrame {
 
 
     private void addToTrack(List<GeoPosition> track, GeoPosition geoPos, RoutePainter rp) {
-        if(track.size() > 1) {
+        if (track.size() > 1) {
             GeoPosition geoPosFirst = track.get(1);
             track.clear();
             track.add(geoPosFirst);
