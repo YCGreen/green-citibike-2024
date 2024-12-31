@@ -5,11 +5,6 @@ import green.citibike.aws.CitiRequestHandler;
 import green.citibike.aws.Request;
 import green.citibike.aws.Response;
 import green.citibike.json.StationInfo;
-import green.citibike.json.Stations;
-import green.citibike.json.StatusInfo;
-import hu.akarnokd.rxjava3.swing.SwingSchedulers;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.CenterMapListener;
@@ -27,11 +22,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 public class CitiFrame extends JFrame {
 
@@ -48,6 +40,9 @@ public class CitiFrame extends JFrame {
 
         JXMapViewer mapViewer = new JXMapViewer();
         main.add(mapViewer, BorderLayout.CENTER);
+
+        JTextArea textArea = new JTextArea();
+        main.add(textArea, BorderLayout.EAST);
 
         TileFactoryInfo info = new OSMTileFactoryInfo();
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
@@ -67,8 +62,6 @@ public class CitiFrame extends JFrame {
 
         WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
         HashSet<Waypoint> waypoints = new HashSet<>();
-        waypoints.add(new DefaultWaypoint(new GeoPosition(40.77228687788679, -73.9842939376831)));
-        waypointPainter.setWaypoints(waypoints);
 
         List<GeoPosition> track = new ArrayList<>();
 
@@ -82,9 +75,6 @@ public class CitiFrame extends JFrame {
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
         mapViewer.setOverlayPainter(painter);
 
-        GeoPosition currPosition = new GeoPosition(0, 0);
-
-
         mapViewer.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -92,7 +82,9 @@ public class CitiFrame extends JFrame {
                 int y = e.getY();
                 Point2D.Double point = new Point2D.Double(x, y);
                 GeoPosition position = mapViewer.convertPointToGeoPosition(point);
-                addWaypoint(waypoints, new DefaultWaypoint(position));
+                addToTrack(track, position, routePainter);
+                setWaypointPainter(track, waypointPainter);
+                mapViewer.repaint();
             }
         });
 
@@ -105,35 +97,60 @@ public class CitiFrame extends JFrame {
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(waypoints.size() == 2) {
-                    Response response = mapPoints(waypoints);
-                    System.out.println(response.toString());
+                if(track.size() == 2) {
+                    Response response = mapPoints(track);
+                    textArea.setText(response.toString());
+                    setWaypointPainter(track, waypointPainter);
+                    mapViewer.zoomToBestFit(
+                            new HashSet<>(track),
+                            1.0
+                    );
                 }
 
             }
         });
         main.add(next, BorderLayout.SOUTH);
-
     }
 
-    private void addWaypoint(HashSet<Waypoint> waypoints, Waypoint waypoint) {
-        if(waypoints.size() == 2) {
-            waypoints.clear();
+
+    private void addToTrack(List<GeoPosition> track, GeoPosition geoPos, RoutePainter rp) {
+        if(track.size() > 1) {
+            GeoPosition geoPosFirst = track.get(1);
+            track.clear();
+            track.add(geoPosFirst);
         }
 
-        waypoints.add(waypoint);
+        track.add(geoPos);
+        rp.setTrack(track);
     }
 
-    private Response mapPoints(HashSet<Waypoint> waypoints) {
-        Iterator<Waypoint> iterator = waypoints.iterator();
-        Waypoint waypoint = iterator.next();
-        GeoPosition geoPos1 = new GeoPosition(waypoint.getPosition());
-        Request request = new Request(iterator.next(), iterator.next());
+    private void setWaypointPainter(List<GeoPosition> track, WaypointPainter wp) {
+        HashSet<Waypoint> waypoints = new HashSet<>();
+
+        for (GeoPosition geoPos : track) {
+            waypoints.add(new DefaultWaypoint(geoPos));
+        }
+
+        wp.setWaypoints(waypoints);
+    }
+
+    private Response mapPoints(List<GeoPosition> track) {
+        Request request = new Request(track.get(0), track.get(1));
         String json = request.toString();
         APIGatewayProxyRequestEvent event = new APIGatewayProxyRequestEvent();
         event.setBody(json);
 
-        return requestHandler.handleRequest(event, null);
+        Response response = requestHandler.handleRequest(event, null);
+
+        StationInfo stationInfo = response.getStart();
+        GeoPosition stationFrom = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
+        stationInfo = response.getEnd();
+        GeoPosition stationTo = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
+
+        track.add(1, stationFrom);
+        track.add(2, stationTo);
+
+        return response;
     }
 
 

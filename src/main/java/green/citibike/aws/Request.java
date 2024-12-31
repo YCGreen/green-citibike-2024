@@ -12,10 +12,7 @@ public class Request {
         this.to = to;
     }
 
-    public Request(Waypoint wayptFrom, Waypoint wayptTo) {
-        GeoPosition geoFrom = wayptFrom.getPosition();
-        GeoPosition geoTo = wayptTo.getPosition();
-
+    public Request(GeoPosition geoFrom, GeoPosition geoTo) {
         from = new Coordinate(geoFrom.getLatitude(), geoFrom.getLongitude());
         to = new Coordinate(geoTo.getLatitude(), geoTo.getLongitude());
     }
