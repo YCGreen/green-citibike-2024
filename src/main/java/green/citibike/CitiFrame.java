@@ -11,6 +11,7 @@ import org.jxmapviewer.input.PanKeyListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
+import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
 
 import javax.swing.*;
@@ -65,7 +66,7 @@ public class CitiFrame extends JFrame {
 
         RoutePainter routePainter = new RoutePainter(track);
 
-        List<org.jxmapviewer.painter.Painter<org.jxmapviewer.JXMapViewer>> painters = List.of(
+        List<Painter<JXMapViewer>> painters = List.of(
                 routePainter,
                 waypointPainter
         );

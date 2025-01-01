@@ -32,34 +32,5 @@ public class Response {
         return end;
     }
 
-    public String toString() {
-        return String.format("""
-        {
-          "from": {
-            "lat": %.4f,
-            "lon": %.4f
-          },
-          "start": {
-            "lat": %.7f,
-            "lon": %.8f,
-            "name": "%s",
-            "station_id": "%s"
-          },
-          "end": {
-            "lat": %.7f,
-            "lon": %.8f,
-            "name": "%s",
-            "station_id": "%s"
-          },
-          "to": {
-            "lat": %.4f,
-            "lon": %.4f
-          }
-        }
-        """,
-                from.getLat(), from.getLon(),
-                start.getLat(), start.getLon(), start.getName(), start.getStationId(),
-                end.getLat(), end.getLon(), end.getName(), end.getStationId(),
-                to.getLat(), to.getLon());
-    }
+
 }

@@ -25,20 +25,5 @@ public class Request {
         return to;
     }
 
-    public String toString() {
-        return String.format("""
-        {
-          "from": {
-            "lat": %.4f,
-            "lon": %.4f
-          },
-          "to": {
-            "lat": %.4f,
-            "lon": %.4f
-          }
-        }
-        """, from.getLat(), from.getLon(), to.getLat(), to.getLon());
-    }
-
 
 }
