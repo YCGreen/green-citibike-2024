@@ -135,6 +135,13 @@ public class CitiFrame extends JFrame {
         event.setBody(json);
 
         Response response = requestHandler.handleRequest(event, null);
+
+        Disposable disposable = service.getStations(new Request(track.get(0), track.get(1)))
+                .subscribeOn(Schedulers.io())
+                .observeOn(SwingSchedulers.edt())
+                .subscribe(
+                        this::handleResponse,
+                        Throwable::printStackTrace);
 */LambdaService service = new LambdaServiceFactory().getService();
         Response response = service.getStations(new Request(track.get(0), track.get(1))).blockingGet();
         StationInfo stationInfo = response.getStart();
@@ -149,7 +156,6 @@ public class CitiFrame extends JFrame {
 
 
     }
-
 
     public static void main(String[] args) {
         CitiFrame frame = new CitiFrame();
