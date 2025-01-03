@@ -118,9 +118,9 @@ public class CitiController {
         int direction = forwards ? 1 : -1;
         int stationIx = 0;
 
-        for(int i = stationStatusList.indexOf(stationStatusMap.get(stationId)) + direction;
+        for (int i = stationStatusList.indexOf(stationStatusMap.get(stationId)) + direction;
             i < stationStatusList.size() - 1 && i >= 0; i += direction) {
-            if(checkAvailability(stationStatusList.get(i), hasBike)) {
+            if (checkAvailability(stationStatusList.get(i), hasBike)) {
                 stationIx = i;
                 break;
             }
