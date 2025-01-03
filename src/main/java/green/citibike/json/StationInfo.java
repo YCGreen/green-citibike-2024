@@ -35,4 +35,19 @@ public class StationInfo {
         return station_id;
         //CHECKSTYLE:ON
     }
+
+    public String toString() {
+        return String.format(
+                "Station: {\n" +
+                        "  Name: %s,\n" +
+                        "  Station ID: %s,\n" +
+                        "  Latitude: %.6f,\n" +
+                        "  Longitude: %.6f\n" +
+                        "}",
+                name,
+                station_id,
+                lat,
+                lon
+        );
+    }
 }

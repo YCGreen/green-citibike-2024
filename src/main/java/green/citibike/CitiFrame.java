@@ -1,9 +1,10 @@
 package green.citibike;
 
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import green.citibike.aws.*;
 import green.citibike.json.StationInfo;
-import io.reactivex.rxjava3.core.Single;
+import hu.akarnokd.rxjava3.swing.SwingSchedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.CenterMapListener;
@@ -26,8 +27,6 @@ import java.util.*;
 import java.util.List;
 
 public class CitiFrame extends JFrame {
-
-    CitiRequestHandler requestHandler = new CitiRequestHandler();
 
     public CitiFrame() {
         setSize(800, 600);
@@ -92,8 +91,7 @@ public class CitiFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (track.size() == 2) {
-                    Response response = mapPoints(track);
-                    textArea.setText(response.toString());
+                    mapPoints(track, textArea);
                     setWaypointPainter(track, waypointPainter);
                     mapViewer.zoomToBestFit(
                             new HashSet<>(track),
@@ -128,23 +126,17 @@ public class CitiFrame extends JFrame {
         wp.setWaypoints(waypoints);
     }
 
-    private Response mapPoints(List<GeoPosition> track) {
-        /*
-        Request request = new Request(track.get(0), track.get(1));
-        String json = request.toString();
-        APIGatewayProxyRequestEvent event = new APIGatewayProxyRequestEvent();
-        event.setBody(json);
-
-        Response response = requestHandler.handleRequest(event, null);
-
+    private void mapPoints(List<GeoPosition> track, JTextArea textArea) {
+        LambdaService service = new LambdaServiceFactory().getService();
         Disposable disposable = service.getStations(new Request(track.get(0), track.get(1)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(SwingSchedulers.edt())
                 .subscribe(
-                        this::handleResponse,
+                        (response) -> handleResponse(response, track, textArea),
                         Throwable::printStackTrace);
-*/LambdaService service = new LambdaServiceFactory().getService();
-        Response response = service.getStations(new Request(track.get(0), track.get(1))).blockingGet();
+    }
+
+    private void handleResponse(Response response, List<GeoPosition> track, JTextArea textArea) {
         StationInfo stationInfo = response.getStart();
         GeoPosition stationFrom = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
         stationInfo = response.getEnd();
@@ -153,9 +145,7 @@ public class CitiFrame extends JFrame {
         track.add(1, stationFrom);
         track.add(2, stationTo);
 
-        return response;
-
-
+        textArea.setText(response.toString());
     }
 
     public static void main(String[] args) {

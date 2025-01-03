@@ -27,4 +27,8 @@ public class Coordinate {
         return lon;
     }
 
+    public String toString() {
+        return String.format("(%f, %f)", lat, lon);
+    }
+
 }

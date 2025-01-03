@@ -21,12 +21,14 @@ public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequest
         Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
         Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
         citiController = new CitiController(stationsInfo, statusInfo);
+
     }
 
     @Override
     public Response handleRequest(APIGatewayProxyRequestEvent event, Context context) {
         Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
         Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
+
         citiController.replaceStationsInfo(stationsInfo, statusInfo);
         String body = event.getBody();
         Gson gson = new Gson();

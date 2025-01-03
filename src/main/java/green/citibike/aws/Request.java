@@ -1,7 +1,6 @@
 package green.citibike.aws;
 
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.Waypoint;
 
 public class Request {
     private Coordinate from;
