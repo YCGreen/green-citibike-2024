@@ -17,4 +17,37 @@ public class StationInfo {
         this.station_id = station_id;
         //CHECKSTYLE:ON
     }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getStationId() {
+        //CHECKSTYLE:OFF
+        return station_id;
+        //CHECKSTYLE:ON
+    }
+
+    public String toString() {
+        return String.format(
+                "Station: {\n"
+                        + "  Name: %s,\n"
+                        + "  Station ID: %s,\n"
+                        + "  Latitude: %.6f,\n"
+                        + "  Longitude: %.6f\n"
+                        + "}",
+                name,
+                station_id,
+                lat,
+                lon
+        );
+    }
 }

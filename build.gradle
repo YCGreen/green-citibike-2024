@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.jxmapviewer:jxmapviewer2:2.8'
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.1'
     testImplementation platform('org.junit:junit-bom:5.9.1')
