@@ -1,4 +1,4 @@
-package green.citibike;
+package green.citibike.mvc;
 
 import green.citibike.json.StationInfo;
 import green.citibike.json.StationStatus;
@@ -8,14 +8,14 @@ import green.citibike.json.StatusInfo;
 import java.util.HashMap;
 import java.util.List;
 
-public class CitiController {
+public class CitiModel {
     private Stations<StationInfo> stationsInfo;
     private Stations<StatusInfo> statusInfo;
     HashMap<String, StationStatus> stationStatusMap = new HashMap<>();
     List<StationStatus> stationStatusList;
     final double RADIUS = 3958.8;
 
-    public CitiController(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
+    public CitiModel(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
         replaceStationsInfo(stationsInfo, statusInfo);
     }
 

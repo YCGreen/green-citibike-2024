@@ -1,10 +1,5 @@
-package green.citibike;
+package green.citibike.mvc;
 
-import green.citibike.aws.*;
-import green.citibike.json.StationInfo;
-import hu.akarnokd.rxjava3.swing.SwingSchedulers;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.CenterMapListener;
@@ -22,11 +17,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
 
 public class CitiFrame extends JFrame {
+    private CitiController citiController = new CitiController();
 
     public CitiFrame() {
         setSize(800, 600);
@@ -78,11 +73,7 @@ public class CitiFrame extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 int x = e.getX();
                 int y = e.getY();
-                Point2D.Double point = new Point2D.Double(x, y);
-                GeoPosition position = mapViewer.convertPointToGeoPosition(point);
-                addToTrack(track, position, routePainter);
-                setWaypointPainter(track, waypointPainter);
-                mapViewer.repaint();
+                citiController.addGeoPosition(x, y, mapViewer, routePainter, track, waypointPainter);
             }
         });
 
@@ -90,62 +81,11 @@ public class CitiFrame extends JFrame {
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (track.size() == 2) {
-                    mapPoints(track, textArea);
-                    setWaypointPainter(track, waypointPainter);
-                    mapViewer.zoomToBestFit(
-                            new HashSet<>(track),
-                            1.0
-                    );
-                }
-
+                citiController.updateMap(track, textArea, waypointPainter, mapViewer);
             }
         });
+
         main.add(next, BorderLayout.SOUTH);
-    }
-
-
-    private void addToTrack(List<GeoPosition> track, GeoPosition geoPos, RoutePainter rp) {
-        if (track.size() > 1) {
-            GeoPosition geoPosFirst = track.get(1);
-            track.clear();
-            track.add(geoPosFirst);
-        }
-
-        track.add(geoPos);
-        rp.setTrack(track);
-    }
-
-    private void setWaypointPainter(List<GeoPosition> track, WaypointPainter wp) {
-        HashSet<Waypoint> waypoints = new HashSet<>();
-
-        for (GeoPosition geoPos : track) {
-            waypoints.add(new DefaultWaypoint(geoPos));
-        }
-
-        wp.setWaypoints(waypoints);
-    }
-
-    private void mapPoints(List<GeoPosition> track, JTextArea textArea) {
-        LambdaService service = new LambdaServiceFactory().getService();
-        Disposable disposable = service.getStations(new Request(track.get(0), track.get(1)))
-                .subscribeOn(Schedulers.io())
-                .observeOn(SwingSchedulers.edt())
-                .subscribe(
-                        (response) -> handleResponse(response, track, textArea),
-                        Throwable::printStackTrace);
-    }
-
-    private void handleResponse(Response response, List<GeoPosition> track, JTextArea textArea) {
-        StationInfo stationInfo = response.getStart();
-        GeoPosition stationFrom = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
-        stationInfo = response.getEnd();
-        GeoPosition stationTo = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
-
-        track.add(1, stationFrom);
-        track.add(2, stationTo);
-
-        textArea.setText(response.toString());
     }
 
     public static void main(String[] args) {

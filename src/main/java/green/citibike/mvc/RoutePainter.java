@@ -1,4 +1,4 @@
-package green.citibike;
+package green.citibike.mvc;
 
 //edited from https://github.com/msteiger/jxmapviewer2/blob/master/examples/src/sample2_waypoints/RoutePainter.java
 import java.awt.BasicStroke;

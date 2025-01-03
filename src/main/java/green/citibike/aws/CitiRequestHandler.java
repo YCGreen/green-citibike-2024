@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.google.gson.Gson;
-import green.citibike.CitiController;
+import green.citibike.mvc.CitiModel;
 import green.citibike.CitiService;
 import green.citibike.CitiServiceFactory;
 import green.citibike.json.StationInfo;
@@ -14,13 +14,13 @@ import green.citibike.json.StatusInfo;
 
 public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
     private CitiService citiService;
-    private CitiController citiController;
+    private CitiModel citiModel;
 
     public CitiRequestHandler() {
         citiService = new CitiServiceFactory().getService();
         Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
         Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
-        citiController = new CitiController(stationsInfo, statusInfo);
+        citiModel = new CitiModel(stationsInfo, statusInfo);
 
     }
 
@@ -29,7 +29,7 @@ public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequest
         Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
         Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
 
-        citiController.replaceStationsInfo(stationsInfo, statusInfo);
+        citiModel.replaceStationsInfo(stationsInfo, statusInfo);
         String body = event.getBody();
         Gson gson = new Gson();
         Request request = gson.fromJson(body, Request.class);
@@ -37,8 +37,8 @@ public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequest
         Coordinate from = request.getFrom();
         Coordinate to = request.getTo();
 
-        StationStatus directFrom = citiController.findClosestStationWithBike(from.getLat(), from.getLon());
-        StationStatus directTo = citiController.findClosestStationWithDock(to.getLat(), to.getLon());
+        StationStatus directFrom = citiModel.findClosestStationWithBike(from.getLat(), from.getLon());
+        StationStatus directTo = citiModel.findClosestStationWithDock(to.getLat(), to.getLon());
 
         return new Response(from, directFrom.getStationInfo(), to, directTo.getStationInfo());
     }
