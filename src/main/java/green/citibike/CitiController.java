@@ -115,18 +115,18 @@ public class CitiController {
     }
 
     private String findClosestStationDirected(String stationId, boolean hasBike, boolean forwards) {
-        int currIx = getNextIx(stationStatusList.indexOf(stationStatusMap.get(stationId)), forwards);
+        int direction = forwards ? 1 : -1;
+        int stationIx = 0;
 
-        while (!checkAvailability(stationStatusList.get(currIx), hasBike)) {
-            currIx = getNextIx(currIx, forwards);
+        for(int i = stationStatusList.indexOf(stationStatusMap.get(stationId)) + direction;
+            i < stationStatusList.size() - 1 && i >= 0; i += direction) {
+            if(checkAvailability(stationStatusList.get(i), hasBike)) {
+                stationIx = i;
+                break;
+            }
         }
 
-        return stationStatusList.get(currIx).getStationId();
-    }
-
-    private int getNextIx(int currIx, boolean forwards) {
-        int step = forwards ? 1 : -1;
-        return (currIx + step + stationStatusList.size()) % stationStatusList.size();
+        return stationStatusList.get(stationIx).getStationId();
     }
 
     private boolean checkAvailability(StationStatus stationStatus, boolean hasBike) {

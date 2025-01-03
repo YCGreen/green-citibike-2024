@@ -48,6 +48,7 @@ public class Response {
                         %s
                         
                         and walk to the end location at\s
+                        
                         %s.""",
                 from.toString(),
                 start.toString(),
