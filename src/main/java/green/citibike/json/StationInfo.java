@@ -1,11 +1,20 @@
 package green.citibike.json;
 
-import com.google.gson.annotations.SerializedName;
-
 public class StationInfo {
     public double lon;
     public double lat;
     public String name;
-    @SerializedName("station_id")
+    //CHECKSTYLE:OFF
     public String station_id;
+
+
+    public StationInfo(double lon, double lat, String name, String station_id) {
+        //CHECKSTYLE:ON
+        this.lon = lon;
+        this.lat = lat;
+        this.name = name;
+        //CHECKSTYLE:OFF
+        this.station_id = station_id;
+        //CHECKSTYLE:ON
+    }
 }
