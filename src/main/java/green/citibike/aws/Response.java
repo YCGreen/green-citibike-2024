@@ -31,4 +31,31 @@ public class Response {
     public StationInfo getEnd() {
         return end;
     }
+
+    public String toString() {
+        return String.format(
+                """
+                        Begin at coordinates
+                        
+                        %s
+                        
+                        Walk to the CitiBike station\s
+                        
+                        %s
+                        
+                        From there, bike to the CitiBike station\s
+                         
+                        %s
+                        
+                        and walk to the end location at\s
+                        
+                        %s.""",
+                from.toString(),
+                start.toString(),
+                end.toString(),
+                to.toString()
+        );
+    }
+
+
 }

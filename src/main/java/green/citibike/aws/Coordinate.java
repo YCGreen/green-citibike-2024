@@ -1,5 +1,7 @@
 package green.citibike.aws;
 
+import org.jxmapviewer.viewer.GeoPosition;
+
 public class Coordinate {
     private double lat;
     private double lon;
@@ -15,6 +17,10 @@ public class Coordinate {
 
     public double getLon() {
         return lon;
+    }
+
+    public String toString() {
+        return String.format("(%f, %f)", lat, lon);
     }
 
 }

@@ -1,4 +1,4 @@
-package green.citibike;
+package green.citibike.mvc;
 
 import green.citibike.json.StationInfo;
 import green.citibike.json.StationStatus;
@@ -8,14 +8,19 @@ import green.citibike.json.StatusInfo;
 import java.util.HashMap;
 import java.util.List;
 
-public class CitiController {
+public class CitiModel {
     private Stations<StationInfo> stationsInfo;
     private Stations<StatusInfo> statusInfo;
     HashMap<String, StationStatus> stationStatusMap = new HashMap<>();
     List<StationStatus> stationStatusList;
     final double RADIUS = 3958.8;
 
-    public CitiController(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
+    public CitiModel() {
+        stationsInfo = new Stations<>();
+        statusInfo = new Stations<>();
+    }
+
+    public CitiModel(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
         replaceStationsInfo(stationsInfo, statusInfo);
     }
 
@@ -115,18 +120,18 @@ public class CitiController {
     }
 
     private String findClosestStationDirected(String stationId, boolean hasBike, boolean forwards) {
-        int currIx = getNextIx(stationStatusList.indexOf(stationStatusMap.get(stationId)), forwards);
+        int direction = forwards ? 1 : -1;
+        int stationIx = 0;
 
-        while (!checkAvailability(stationStatusList.get(currIx), hasBike)) {
-            currIx = getNextIx(currIx, forwards);
+        for (int i = stationStatusList.indexOf(stationStatusMap.get(stationId)) + direction;
+            i < stationStatusList.size() - 1 && i >= 0; i += direction) {
+            if (checkAvailability(stationStatusList.get(i), hasBike)) {
+                stationIx = i;
+                break;
+            }
         }
 
-        return stationStatusList.get(currIx).getStationId();
-    }
-
-    private int getNextIx(int currIx, boolean forwards) {
-        int step = forwards ? 1 : -1;
-        return (currIx + step + stationStatusList.size()) % stationStatusList.size();
+        return stationStatusList.get(stationIx).getStationId();
     }
 
     private boolean checkAvailability(StationStatus stationStatus, boolean hasBike) {
