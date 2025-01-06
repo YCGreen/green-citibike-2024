@@ -15,16 +15,17 @@ import green.citibike.json.StatusInfo;
 public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
     private CitiService citiService;
     private CitiModel citiModel;
+    private StationsCache stationsCache;
 
     public CitiRequestHandler() {
         citiService = new CitiServiceFactory().getService();
         citiModel = new CitiModel();
-
+        stationsCache = new StationsCache();
     }
 
     @Override
     public Response handleRequest(APIGatewayProxyRequestEvent event, Context context) {
-        Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
+        Stations<StationInfo> stationsInfo = stationsCache.getStations();
         Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
 
         citiModel.replaceStationsInfo(stationsInfo, statusInfo);
