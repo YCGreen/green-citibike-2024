@@ -11,14 +11,6 @@ public class Coordinate {
         this.lon = lon;
     }
 
-    public void setLat(double lat) {
-        this.lat = lat;
-    }
-
-    public void setLon(double lon) {
-        this.lon = lon;
-    }
-
     public double getLat() {
         return lat;
     }

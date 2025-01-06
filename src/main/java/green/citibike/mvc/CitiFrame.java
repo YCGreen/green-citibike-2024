@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.List;
 
 public class CitiFrame extends JFrame {
-    private CitiController citiController = new CitiController();
+    private CitiController citiController;
 
     public CitiFrame() {
         setSize(800, 600);
@@ -68,12 +68,14 @@ public class CitiFrame extends JFrame {
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
         mapViewer.setOverlayPainter(painter);
 
+        citiController = new CitiController(mapViewer, routePainter, track, waypointPainter, textArea);
+
         mapViewer.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int x = e.getX();
                 int y = e.getY();
-                citiController.addGeoPosition(x, y, mapViewer, routePainter, track, waypointPainter);
+                citiController.addGeoPosition(x, y);
             }
         });
 
@@ -81,7 +83,7 @@ public class CitiFrame extends JFrame {
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                citiController.updateMap(track, textArea, waypointPainter, mapViewer);
+                citiController.updateMap();
             }
         });
 

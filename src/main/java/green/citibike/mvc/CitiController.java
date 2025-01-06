@@ -22,17 +22,30 @@ import java.util.List;
 public class CitiController {
 
     private final LambdaService service = new LambdaServiceFactory().getService();
+    private JXMapViewer mapViewer;
+    RoutePainter routePainter;
+    List<GeoPosition> track;
+    WaypointPainter waypointPainter;
+    JTextArea textArea;
 
-    public void addGeoPosition(int x, int y, JXMapViewer mapViewer,
-                               RoutePainter routePainter, List<GeoPosition> track, WaypointPainter waypointPainter) {
+    public CitiController(JXMapViewer viewer, RoutePainter routePainter, List<GeoPosition> track,
+                          WaypointPainter waypointPainter, JTextArea textArea) {
+        this.mapViewer = viewer;
+        this.routePainter = routePainter;
+        this.track = track;
+        this.waypointPainter = waypointPainter;
+        this.textArea = textArea;
+    }
+
+    public void addGeoPosition(int x, int y) {
         Point2D.Double point = new Point2D.Double(x, y);
         GeoPosition position = mapViewer.convertPointToGeoPosition(point);
-        addToTrack(track, position, routePainter);
-        setWaypointPainter(track, waypointPainter);
+        addToTrack(position);
+        setWaypointPainter();
         mapViewer.repaint();
     }
 
-    public void addToTrack(List<GeoPosition> track, GeoPosition geoPos, RoutePainter rp) {
+    public void addToTrack(GeoPosition geoPos) {
         if (track.size() > 1) {
             GeoPosition geoPosFirst = track.get(1);
             track.clear();
@@ -40,19 +53,19 @@ public class CitiController {
         }
 
         track.add(geoPos);
-        rp.setTrack(track);
+        routePainter.setTrack(track);
     }
 
-    public void mapPoints(List<GeoPosition> track, JTextArea textArea) {
+    public void mapPoints(List<GeoPosition> track) {
         Disposable disposable = service.getStations(new Request(track.get(0), track.get(1)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(SwingSchedulers.edt())
                 .subscribe(
-                        (response) -> handleResponse(response, track, textArea),
+                        (response) -> handleResponse(response),
                         Throwable::printStackTrace);
     }
 
-    private void handleResponse(Response response, List<GeoPosition> track, JTextArea textArea) {
+    private void handleResponse(Response response) {
         StationInfo stationInfo = response.getStart();
         GeoPosition stationFrom = new GeoPosition(stationInfo.getLat(), stationInfo.getLon());
         stationInfo = response.getEnd();
@@ -64,11 +77,10 @@ public class CitiController {
         textArea.setText(response.toString());
     }
 
-    public void updateMap(List<GeoPosition> track, JTextArea textArea,
-                          WaypointPainter waypointPainter, JXMapViewer mapViewer) {
+    public void updateMap() {
         if (track.size() == 2) {
-            mapPoints(track, textArea);
-            setWaypointPainter(track, waypointPainter);
+            mapPoints(track);
+            setWaypointPainter();
             mapViewer.zoomToBestFit(
                     new HashSet<>(track),
                     1.0
@@ -76,7 +88,7 @@ public class CitiController {
         }
     }
 
-    public void setWaypointPainter(List<GeoPosition> track, WaypointPainter waypointPainter) {
+    public void setWaypointPainter() {
         HashSet<Waypoint> waypoints = new HashSet<>();
 
         for (GeoPosition geoPos : track) {

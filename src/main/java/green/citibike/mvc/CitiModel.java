@@ -15,6 +15,11 @@ public class CitiModel {
     List<StationStatus> stationStatusList;
     final double RADIUS = 3958.8;
 
+    public CitiModel() {
+        stationsInfo = new Stations<>();
+        statusInfo = new Stations<>();
+    }
+
     public CitiModel(Stations<StationInfo> stationsInfo, Stations<StatusInfo> statusInfo) {
         replaceStationsInfo(stationsInfo, statusInfo);
     }

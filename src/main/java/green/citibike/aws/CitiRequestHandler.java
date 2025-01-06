@@ -18,9 +18,7 @@ public class CitiRequestHandler implements RequestHandler<APIGatewayProxyRequest
 
     public CitiRequestHandler() {
         citiService = new CitiServiceFactory().getService();
-        Stations<StationInfo> stationsInfo = citiService.getStations().blockingGet();
-        Stations<StatusInfo> statusInfo = citiService.getStatus().blockingGet();
-        citiModel = new CitiModel(stationsInfo, statusInfo);
+        citiModel = new CitiModel();
 
     }
 
