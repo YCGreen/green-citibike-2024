@@ -5,7 +5,7 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface LambdaService {
-   @POST("/CitiBikeRequestFunction")
+   @POST("/")
    Single<Response> getStations(@Body Request request);
 
 }

@@ -6,7 +6,6 @@ import green.citibike.CitiService;
 import green.citibike.CitiServiceFactory;
 import green.citibike.json.StationInfo;
 import green.citibike.json.Stations;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -33,75 +32,75 @@ public class StationsCache {
                 .build();
 
         response = readFromS3();
+        resetLastModified();
     }
 
     public Stations<StationInfo> getStations() {
-       boolean updated = updatedWithinHour();
-      /*   if (response == null && updated) {
-            return readFromS3();
-        } else if (updatedWithinHour()) {
-            return response;
-        }
+       boolean updatedWithinHour = updatedWithinHour();
 
-        updateLastModified();
-        return response;
+       if(!updatedWithinHour) {
+           downloadStations();
+       }
 
-
-        if(response != null && updated) {
-            return response;
-        } */
-        if(response != null && !updated) {
-            updateLastModified();
-        } else if(response == null && updated) {
-            response = readFromS3();
-        } else if(response == null && !updated) {
-            updateLastModified();
-        }
-
-        return response;
+       return response;
     }
 
-    private void updateLastModified() {
-        Stations<StationInfo> stations = service.getStations().blockingGet();
-        lastModified = Instant.now();
-        writeToS3(stations);
-    }
-
-    private boolean updatedWithinHour() {
+    private void resetLastModified() {
         HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
                 .bucket(BUCKET)
                 .key(KEY)
                 .build();
-
         try {
             HeadObjectResponse headObjectResponse = s3Client.headObject(headObjectRequest);
             lastModified = headObjectResponse.lastModified();
-            return Duration.between(lastModified, Instant.now()).toHours() > 0;
         } catch (Exception e) {
-            return false;
+
         }
     }
 
+    private void downloadStations() {
+        response = service.getStations().blockingGet();
+        lastModified = Instant.now();
+        writeToS3(response);
+    }
+
+    private boolean updatedWithinHour() {
+        if (lastModified == null) {
+            return false;
+        }
+
+        return Duration.between(lastModified, Instant.now()).toHours() > 0;
+    }
+
     private void writeToS3(Stations<StationInfo> stations) {
+        try {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(BUCKET)
                 .key(KEY)
                 .build();
 
         String content = gson.toJson(stations);
-        s3Client.putObject(putObjectRequest, RequestBody.fromString(content));
+        s3Client.putObject(putObjectRequest, RequestBody.fromString(content)); }
+        catch (Exception e) {
+
+        }
     }
 
     private Stations<StationInfo> readFromS3() {
-        GetObjectRequest getObjectRequest = GetObjectRequest
-                .builder()
-                .bucket(BUCKET)
-                .key(KEY)
-                .build();
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest
+                    .builder()
+                    .bucket(BUCKET)
+                    .key(KEY)
+                    .build();
 
-        InputStream in = s3Client.getObject(getObjectRequest);
-        Type type = new TypeToken<Stations<StationInfo>>() {}.getType();
-        return gson.fromJson(new InputStreamReader(in), type);
+            InputStream in = s3Client.getObject(getObjectRequest);
+            Type type = new TypeToken<Stations<StationInfo>>() {}.getType();
+            return gson.fromJson(new InputStreamReader(in), type);
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 
 }
