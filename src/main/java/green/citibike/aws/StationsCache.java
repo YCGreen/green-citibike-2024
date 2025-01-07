@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class StationsCache {
-    private static final int HOUR = 3600;
     private static final String KEY = "cache/station_information.json";
     private static final String BUCKET = "green.citibike";
     private Stations<StationInfo> response;
@@ -32,6 +31,8 @@ public class StationsCache {
         s3Client = S3Client.builder()
                 .region(Region.US_EAST_2)
                 .build();
+
+        response = readFromS3();
     }
 
     public Stations<StationInfo> getStations() {
@@ -59,7 +60,7 @@ public class StationsCache {
 
         try {
             HeadObjectResponse headObjectResponse = s3Client.headObject(headObjectRequest);
-            Instant lastModified = headObjectResponse.lastModified();
+            lastModified = headObjectResponse.lastModified();
             return Duration.between(lastModified, Instant.now()).toHours() > 0;
         } catch (Exception e) {
             return false;
@@ -67,16 +68,10 @@ public class StationsCache {
     }
 
     private void writeToS3(Stations<StationInfo> stations) {
-        Region region = Region.US_EAST_2;
-        S3Client s3Client = S3Client.builder()
-                .region(region)
-                .build();
-
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(BUCKET)
                 .key(KEY)
                 .build();
-
 
         String content = gson.toJson(stations);
         s3Client.putObject(putObjectRequest, RequestBody.fromString(content));
