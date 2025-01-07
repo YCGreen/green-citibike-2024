@@ -19,7 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class StationsCache {
-    private static final String KEY = "cache/station_information.json";
+    private static final String KEY = "station_information.json";
     private static final String BUCKET = "green.citibike";
     private Stations<StationInfo> response;
     private Instant lastModified;
@@ -36,13 +36,28 @@ public class StationsCache {
     }
 
     public Stations<StationInfo> getStations() {
-        if (response == null && updatedWithinHour()) {
+       boolean updated = updatedWithinHour();
+      /*   if (response == null && updated) {
             return readFromS3();
         } else if (updatedWithinHour()) {
             return response;
         }
 
         updateLastModified();
+        return response;
+
+
+        if(response != null && updated) {
+            return response;
+        } */
+        if(response != null && !updated) {
+            updateLastModified();
+        } else if(response == null && updated) {
+            response = readFromS3();
+        } else if(response == null && !updated) {
+            updateLastModified();
+        }
+
         return response;
     }
 
