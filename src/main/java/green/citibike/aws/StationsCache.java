@@ -6,6 +6,7 @@ import green.citibike.CitiService;
 import green.citibike.CitiServiceFactory;
 import green.citibike.json.StationInfo;
 import green.citibike.json.Stations;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -24,48 +25,33 @@ public class StationsCache {
     private Stations<StationInfo> response;
     private Instant lastModified;
     private Gson gson = new Gson();
-    private S3Client s3Client = S3Client.create();
+    private S3Client s3Client;
     private CitiService service = new CitiServiceFactory().getService();
 
     public StationsCache() {
-
+        s3Client = S3Client.builder()
+                .region(Region.US_EAST_2)
+                .build();
     }
 
     public Stations<StationInfo> getStations() {
-        if (response != null) {
-            if(updatedWithinHour()) {
-                return response;
-            } else {
-                Stations<StationInfo> stations = service.getStations().blockingGet();
-                lastModified = Instant.now();
-                writeToS3(stations);
-            }
-        } else {
-            if(updatedWithinHour()) {
-                readFromS3();
-            } else {
-                Stations<StationInfo> stations = service.getStations().blockingGet();
-                lastModified = Instant.now();
-                writeToS3(stations);
-            }
-        }
-
-        if (response != null && updatedWithinHour()) {
+        if (response == null && updatedWithinHour()) {
+            return readFromS3();
+        } else if (updatedWithinHour()) {
             return response;
         }
 
-        if (response == null && updatedWithinHour()) {
-            response = readFromS3();
-        } else {
-            Stations<StationInfo> stations = service.getStations().blockingGet();
-            lastModified = Instant.now();
-            writeToS3(stations);
-        }
-
+        updateLastModified();
         return response;
     }
 
-    public boolean updatedWithinHour() {
+    private void updateLastModified() {
+        Stations<StationInfo> stations = service.getStations().blockingGet();
+        lastModified = Instant.now();
+        writeToS3(stations);
+    }
+
+    private boolean updatedWithinHour() {
         HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
                 .bucket(BUCKET)
                 .key(KEY)
