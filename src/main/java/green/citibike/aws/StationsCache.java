@@ -38,7 +38,7 @@ public class StationsCache {
     public Stations<StationInfo> getStations() {
        boolean updatedWithinHour = updatedWithinHour();
 
-       if(!updatedWithinHour) {
+       if (!updatedWithinHour) {
            downloadStations();
        }
 
@@ -80,9 +80,9 @@ public class StationsCache {
                 .build();
 
         String content = gson.toJson(stations);
-        s3Client.putObject(putObjectRequest, RequestBody.fromString(content)); }
-        catch (Exception e) {
-
+        s3Client.putObject(putObjectRequest, RequestBody.fromString(content));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,9 +98,8 @@ public class StationsCache {
             Type type = new TypeToken<Stations<StationInfo>>() {}.getType();
             return gson.fromJson(new InputStreamReader(in), type);
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
 }
