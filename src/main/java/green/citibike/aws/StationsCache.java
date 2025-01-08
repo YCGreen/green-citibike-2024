@@ -53,8 +53,8 @@ public class StationsCache {
         try {
             HeadObjectResponse headObjectResponse = s3Client.headObject(headObjectRequest);
             lastModified = headObjectResponse.lastModified();
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -81,7 +81,8 @@ public class StationsCache {
 
         String content = gson.toJson(stations);
         s3Client.putObject(putObjectRequest, RequestBody.fromString(content));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -96,7 +97,8 @@ public class StationsCache {
             InputStream in = s3Client.getObject(getObjectRequest);
             Type type = new TypeToken<Stations<StationInfo>>() {}.getType();
             return gson.fromJson(new InputStreamReader(in), type);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return null;
